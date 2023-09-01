@@ -1,7 +1,12 @@
-from django.http import JsonResponse
-from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
+from api.serializers import NoteSerializer
+from .models import Note
+from .utils import *
 
 
+@api_view(['GET'])
 def routesView(request):
 
     routes = [
@@ -18,23 +23,46 @@ def routesView(request):
             'description': 'Returns a single note object'
         },
         {
-            'Endpoint': '/notes/create/',
+            'Endpoint': '/notes/',
             'method': 'POST',
             'body': {'body': ""},
             'description': 'Creates new note with data sent in post request'
         },
         {
-            'Endpoint': '/notes/id/update/',
+            'Endpoint': '/notes/id/',
             'method': 'PUT',
             'body': {'body': ""},
-            'description': 'Creates an existing note with data sent in post request'
+            'description': 'Update an existing note with data sent in post request'
         },
         {
-            'Endpoint': '/notes/id/delete/',
+            'Endpoint': '/notes/id/',
             'method': 'DELETE',
             'body': None,
-            'description': 'Deletes and exiting note'
+            'description': 'Deletes an exiting note'
         },
     ]
 
-    return JsonResponse(routes, safe=False)
+    return Response(routes)
+
+
+@api_view(['GET', 'POST'])
+def getNotes(request):
+
+    if request.method == 'GET':
+        return getNotesList(request)
+
+    if request.method == 'POST':
+        return createNote(request)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def getNote(request, pk):
+
+    if request.method == 'GET':
+        return getNoteDetail(request, pk)
+
+    if request.method == 'PUT':
+        return updateNote(request, pk)
+
+    if request.method == 'DELETE':
+        return deleteNote(request, pk)
